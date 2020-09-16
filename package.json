@@ -1,0 +1,29 @@
+{
+  "name": "syncusers",
+  "version": "1.0.0",
+  "description": "Generic user sync for Tableau ",
+  "main": "index.js",
+  "dependencies": {
+    "unirest": "^0.6.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aalteirac/syncUsers.git"
+  },
+  "keywords": [
+    "Tableau",
+    "users",
+    "SAML",
+    "synchronize"
+  ],
+  "author": "Anthony Alteirac",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aalteirac/syncUsers/issues"
+  },
+  "homepage": "https://github.com/aalteirac/syncUsers#readme"
+}
