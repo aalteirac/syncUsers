@@ -6,7 +6,7 @@ const confirm=readline.createInterface({
     output:process.stdout
 })
 
-async function compareRepo(realm){
+async function compareRepo(realm,strole,authset){
     var tbu=await tab.getUsersList();
     var kcu=await kc.getUsersList(realm);
     var toCreate=[];
@@ -21,9 +21,9 @@ async function compareRepo(realm){
         if(found===false){
             toCreate.push({name:kcuser.username,
                 fullName:kcuser.firstName +' '+ kcuser.lastName,
-                siteRole:"Viewer",
+                siteRole:strole,
                 password:"",
-                authSetting:"ServerDefault",
+                authSetting:authset,
                 email:kcuser.email
             });
         }
@@ -43,10 +43,10 @@ async function compareRepo(realm){
     return {toDel:toDelete,toAdd:toCreate}
 }
 
-async function main(realm){
+async function main(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDefault"){
     // FOR TEST PURPOSE, DO NOT VALIDATE CERT
     process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
-    var ret=await compareRepo(realm);
+    var ret=await compareRepo(realm,defaultSiteRole,defaultAuthSetting);
     console.log("The following users are not yet in Tableau:",ret.toAdd)
     confirm.question(`Are you sure you want to create ${ret.toAdd.length} users in Tableau (Y/N)?  `, (e)=>{
         if(e.toLowerCase()=="y")
@@ -57,5 +57,5 @@ async function main(realm){
     });
 }
 
-main("testsaml");
+main("testsaml","Creator","SAML");
 

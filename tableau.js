@@ -152,13 +152,3 @@ module.exports = {
     getUsersList:getUsersList,
     addUser:testAddUser
 }
-
-
-// test();
-// async function test(){
-//     process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
-//     console.log(await testAddUser());
-//     //console.log(await getUsersList())
-// };
-
-
