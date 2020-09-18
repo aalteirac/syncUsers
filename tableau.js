@@ -125,23 +125,24 @@ async function getUsersList(){
     return allUsers;
 }
 
-async function testAddUser(){
+async function testAddUser(user){
     var auth=await getToken(store.TABLEAU.API_ID,store.TABLEAU.API_TOKEN,store.TABLEAU.SITE_ID).catch(error=> {console.log("ERR:",error)});
-    var user={
-        "id":"",
-        "fullname":"Anthony API",
-        "email":"mshridhar@tableau.com",
-        //"password":password,
-        "name":"mshridhar",
-        "siterole":"ExplorerCanPublish",
-        "authsetting":"SAML" //MANDATORY, cannot be null or need to be removed from json envelop...
-    }
+    // var user={
+    //     "id":"",
+    //     "fullname":"Anthony API",
+    //     "email":"mshridhar@tableau.com",
+    //     //"password":password,
+    //     "name":"mshridhar",
+    //     "siterole":"ExplorerCanPublish",
+    //     "authsetting":"SAML" //MANDATORY, cannot be null or need to be removed from json envelop...
+    // }
     var res=await addUser(auth.credentials.token,auth.credentials.site.id,user).catch(error=> {console.log("ERR:",error)});
-    console.log(res);
+    //console.log(res);
 }
 
 module.exports = {
-    getUsersList:getUsersList
+    getUsersList:getUsersList,
+    addUser:testAddUser
 }
 
 //testAddUser();
