@@ -48,17 +48,19 @@ async function testAuth(){
         store.KEYCLOAK.GRANT_TYPE,store.KEYCLOAK.CLIENT_SECRET,
         store.KEYCLOAK.SCOPE,store.KEYCLOAK.USER_NAME,
         store.KEYCLOAK.PASS);
-    console.log(ret);  
 }
 
-async function testUsers(){
+async function testUsers(realm){
     var ret=await getToken(store.KEYCLOAK.CLIENT_ID,
         store.KEYCLOAK.GRANT_TYPE,store.KEYCLOAK.CLIENT_SECRET,
         store.KEYCLOAK.SCOPE,store.KEYCLOAK.USER_NAME,
         store.KEYCLOAK.PASS);
-    ret=await getAllUsers(ret.access_token,"testsaml"); 
-    console.log(ret);
+    ret=await getAllUsers(ret.access_token,realm); 
+    return ret;
 }
 
+module.exports = {
+    getUsersList:testUsers
+}
 //testAuth();
-testUsers();
+//testUsers();

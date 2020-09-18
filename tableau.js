@@ -4,8 +4,6 @@ const HOST=store.TABLEAU.HOST;
 const version="3.8";
 const TABURL=`${store.TABLEAU.PROTOCOL}://${HOST}/api/${version}`;
 
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
-
 function getToken(api_id,api_token,site_id=""){
     return new Promise((resolve, reject) => {
         var	data= {
@@ -120,11 +118,11 @@ async function addUser(token,siteid,user){
     return res;
 }
 
-async function testListUsers(){
-    var auth=await getToken(store.API_ID,store.API_TOKEN,store.SITE_ID).catch(error=> {console.log("ERR:",error)});
+async function getUsersList(){
+    var auth=await getToken(store.TABLEAU.API_ID,store.TABLEAU.API_TOKEN,store.TABLEAU.SITE_ID).catch(error=> {console.log("ERR:",error)});
     var allUsers=[];
-    await getAllUsers(allUsers,auth.credentials.token,auth.credentials.site.id,10,1).catch(error=> {console.log("ERR:",error)});
-    console.log("OK:",allUsers);
+    await getAllUsers(allUsers,auth.credentials.token,auth.credentials.site.id,100,1).catch(error=> {console.log("ERR:",error)});
+    return allUsers;
 }
 
 async function testAddUser(){
@@ -142,8 +140,10 @@ async function testAddUser(){
     console.log(res);
 }
 
+module.exports = {
+    getUsersList:getUsersList
+}
 
-
-testAddUser();
+//testAddUser();
 //testListUsers();
 
