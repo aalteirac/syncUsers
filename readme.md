@@ -4,6 +4,8 @@ Install nodejs from https://nodejs.org/en/download/
 
 Clone/unzip the repo and run in the root folder: npm install
 
+if you need help to setup KeyCloak admin API: https://developers.redhat.com/blog/2020/01/29/api-login-and-jwt-token-generation-using-keycloak/
+
 ---------------FIRST FILL "store.js" INFORMATION TO CONNECT TABLEAU AND KEYCLOAK---------------
 
 ----------------------------------------COMPARE USAGE------------------------------------------
