@@ -1,8 +1,8 @@
 var unirest = require('unirest');
 const store=require("./store");
-const HOST=store.HOST;
+const HOST=store.TABLEAU.HOST;
 const version="3.8";
-const TABURL=`${store.PROTOCOL}://${HOST}/api/${version}`;
+const TABURL=`${store.TABLEAU.PROTOCOL}://${HOST}/api/${version}`;
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
@@ -67,7 +67,7 @@ async function createUser(token,siteid,user){
                 "siteRole": user.siterole,
                 "authSetting":user.authsetting
             }
-    };
+        };
         unirest.post(`${TABURL}/sites/${siteid}/users`,)
         .header("Content-Type", "application/json")
         .header("Accept", "application/json")
@@ -128,15 +128,15 @@ async function testListUsers(){
 }
 
 async function testAddUser(){
-    var auth=await getToken(store.API_ID,store.API_TOKEN,store.SITE_ID).catch(error=> {console.log("ERR:",error)});
+    var auth=await getToken(store.TABLEAU.API_ID,store.TABLEAU.API_TOKEN,store.TABLEAU.SITE_ID).catch(error=> {console.log("ERR:",error)});
     var user={
         "id":"",
         "fullname":"Anthony API",
-        "email":"aalteirac@tableau.com",
+        "email":"mshridhar@tableau.com",
         //"password":password,
-        "name":"aalteiracapi",
+        "name":"mshridhar",
         "siterole":"ExplorerCanPublish",
-        //"authsetting":authsetting
+        "authsetting":"SAML" //MANDATORY, cannot be null or need to be removed from json envelop...
     }
     var res=await addUser(auth.credentials.token,auth.credentials.site.id,user).catch(error=> {console.log("ERR:",error)});
     console.log(res);
@@ -144,6 +144,6 @@ async function testAddUser(){
 
 
 
-//testAddUser();
-testListUsers();
+testAddUser();
+//testListUsers();
 
