@@ -20,8 +20,9 @@ async function compareRepo(realm){
         })
         if(found===false){
             toCreate.push({name:kcuser.username,
-                fullName:kcuser.firstName + kcuser.lastName,
+                fullName:kcuser.firstName +' '+ kcuser.lastName,
                 siteRole:"Viewer",
+                password:"",
                 authSetting:"ServerDefault",
                 email:kcuser.email
             });
@@ -47,12 +48,12 @@ async function main(realm){
     process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     var ret=await compareRepo(realm);
     console.log("The following users are not yet in Tableau:",ret.toAdd)
-    confirm.question("Are you sure you want to create users in Tableau (Y/N)?", (e)=>{
+    confirm.question(`Are you sure you want to create ${ret.toAdd.length} users in Tableau (Y/N)?  `, (e)=>{
         if(e.toLowerCase()=="y")
             ret.toAdd.map(async (el)=>{
                 await tab.addUser(el);
-            });
-        process.exit(0) ;   
+        });
+        confirm.close();
     });
 }
 

@@ -3,6 +3,8 @@ const store=require("./store");
 const HOST=store.TABLEAU.HOST;
 const version="3.8";
 const TABURL=`${store.TABLEAU.PROTOCOL}://${HOST}/api/${version}`;
+var cacheToken;
+var cacheSiteID;
 
 function getToken(api_id,api_token,site_id=""){
     return new Promise((resolve, reject) => {
@@ -62,8 +64,8 @@ async function createUser(token,siteid,user){
         var	data= {
             "user": {
                 "name": user.name,
-                "siteRole": user.siterole,
-                "authSetting":user.authsetting
+                "siteRole": user.siteRole,
+                "authSetting":user.authSetting
             }
         };
         unirest.post(`${TABURL}/sites/${siteid}/users`,)
@@ -87,13 +89,12 @@ async function updateUser(token,siteid,user){
     return new Promise((resolve, reject) => {
         var	data= {
             "user": {
-                "fullName": user.fullname,
+                "fullName": user.fullName,
                 "email":user.email,
-                "password":user.password,
-                "siteRole": user.siterole,
-                "authSetting":user.authsetting
+                "siteRole": user.siteRole,
+                "authSetting":user.authSetting
             }
-    };
+        };
         unirest.put(`${TABURL}/sites/${siteid}/users/${user.id}`,)
         .header("Content-Type", "application/json")
         .header("Accept", "application/json")
@@ -113,31 +114,38 @@ async function updateUser(token,siteid,user){
 async function addUser(token,siteid,user){
     var res=await createUser(token,siteid,user);
     if(res.error) throw res.error;
-    res= await updateUser(token,siteid,res.user);
+    var upuser={
+        id:res.user.id,
+        name:res.user.name,
+        siteRole:res.user.siteRole,
+        fullName:user.fullName,
+        authSetting:res.user.authSetting,
+        email:user.email,
+    }
+    res= await updateUser(token,siteid,upuser);
     if(res.error) throw res.error;
     return res;
 }
 
 async function getUsersList(){
-    var auth=await getToken(store.TABLEAU.API_ID,store.TABLEAU.API_TOKEN,store.TABLEAU.SITE_ID).catch(error=> {console.log("ERR:",error)});
+    var inf=await handleAUth();
     var allUsers=[];
-    await getAllUsers(allUsers,auth.credentials.token,auth.credentials.site.id,100,1).catch(error=> {console.log("ERR:",error)});
+    await getAllUsers(allUsers,inf.token,inf.siteId,100,1).catch(error=> {console.log("ERR_GET_TABLEAU_USER:",error)});
     return allUsers;
 }
 
+async function handleAUth(){
+    if(!cacheToken){
+        var ret=await getToken(store.TABLEAU.API_ID,store.TABLEAU.API_TOKEN,store.TABLEAU.SITE_ID).catch(error=> {console.log("ERR_TABLEAU_AUTHENTICATION:",error)})
+        cacheToken=ret.credentials.token;
+        cacheSiteID=ret.credentials.site.id;
+    }
+    return {token:cacheToken,siteId:cacheSiteID}
+}
+
 async function testAddUser(user){
-    var auth=await getToken(store.TABLEAU.API_ID,store.TABLEAU.API_TOKEN,store.TABLEAU.SITE_ID).catch(error=> {console.log("ERR:",error)});
-    // var user={
-    //     "id":"",
-    //     "fullname":"Anthony API",
-    //     "email":"mshridhar@tableau.com",
-    //     //"password":password,
-    //     "name":"mshridhar",
-    //     "siterole":"ExplorerCanPublish",
-    //     "authsetting":"SAML" //MANDATORY, cannot be null or need to be removed from json envelop...
-    // }
-    var res=await addUser(auth.credentials.token,auth.credentials.site.id,user).catch(error=> {console.log("ERR:",error)});
-    //console.log(res);
+    var inf=await handleAUth();
+    var res=await addUser(inf.token,inf.siteId,user).catch(error=> {console.log(`ERR_TABLEAU_ADD_USER (${user.name}):`,error)});
 }
 
 module.exports = {
@@ -145,6 +153,12 @@ module.exports = {
     addUser:testAddUser
 }
 
-//testAddUser();
-//testListUsers();
+
+// test();
+// async function test(){
+//     process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+//     console.log(await testAddUser());
+//     //console.log(await getUsersList())
+// };
+
 
