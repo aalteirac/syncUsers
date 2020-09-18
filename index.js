@@ -1,7 +1,7 @@
 var tab=require("./tableau");
 var kc=require("./keycloak");
-
-//FOR TEST PURPOSE, DO NOT VALIDATE CERT
+ 
+// FOR TEST PURPOSE, DO NOT VALIDATE CERT
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 async function compareRepo(){
