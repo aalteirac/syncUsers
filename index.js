@@ -1,5 +1,5 @@
-var tab=require("./tableau");
-var kc=require("./keycloak");
+var tab=require("./lib/tableau");
+var kc=require("./lib/keycloak");
 const readline=require("readline");
 const yargs = require('yargs');
 var log=true;
