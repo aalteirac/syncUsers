@@ -1,5 +1,9 @@
-# KEYCLOAK=>TABLEAU SYNC UTILITY
+# NODEJS KEYCLOAK => TABLEAU SYNC UTILITY
  
+Install nodejs from https://nodejs.org/en/download/
+
+Clone/unzip the repo and run in the root folder: npm install
+
 ---------------FIRST FILL "store.js" INFORMATION TO CONNECT TABLEAU AND KEYCLOAK---------------
 
 ----------------------------------------COMPARE USAGE------------------------------------------
