@@ -150,6 +150,3 @@ yargs.command('compare', 'Compare KeyCloak and Tableau Users', (yargs) => {}, as
         console.log("");
         process.exit(0);
     }).argv;
-
-
-
