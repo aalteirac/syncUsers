@@ -103,11 +103,13 @@ yargs.command('compare', 'Compare KeyCloak and Tableau Users', (yargs) => {}, as
             await sync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,true);
         }  
     }).command('*', 'KeyCloak->Tableau Sync Users Utility', (yargs) => {}, (argv) => {
+        console.log("");
+        console.log("");
         console.log('---------------FIRST FILL "store.js" INFORMATION TO CONNECT TABLEAU AND KEYCLOAK---------------');
         console.log("");
         console.log('----------------------------------------COMPARE USAGE------------------------------------------');
         console.log("");
-        console.log('Run the following command to only compare Users (no modification in any repositories) :');
+        console.log('Run the following command to compare Users (dry run, no modification in any repositories) :');
         console.log("");
         console.log("node index.js compare --NOCERT --reaml=myrealm");
         console.log("");
