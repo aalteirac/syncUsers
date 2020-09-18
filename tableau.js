@@ -130,7 +130,7 @@ async function addUser(token,siteid,user){
 async function getUsersList(){
     var inf=await handleAUth();
     var allUsers=[];
-    await getAllUsers(allUsers,inf.token,inf.siteId,100,1).catch(error=> {console.log("ERR_GET_TABLEAU_USER:",error)});
+    await getAllUsers(allUsers,inf.token,inf.siteId,100,1);
     return allUsers;
 }
 
@@ -145,7 +145,7 @@ async function handleAUth(){
 
 async function testAddUser(user){
     var inf=await handleAUth();
-    var res=await addUser(inf.token,inf.siteId,user).catch(error=> {console.log(`ERR_TABLEAU_ADD_USER (${user.name}):`,error)});
+    return await addUser(inf.token,inf.siteId,user);
 }
 
 module.exports = {

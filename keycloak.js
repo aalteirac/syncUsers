@@ -32,7 +32,6 @@ function getToken(clientid,grantype,clientsecret,scope,username,pass){
         };
         unirest.post(`${KCURL}/auth/realms/master/protocol/openid-connect/token`,)
         .header("Content-Type", "application/x-www-form-urlencoded")
-        //.header("Accept", "application/json")
         .send(data)
         .then((response) => {
             if(response.error)
@@ -54,13 +53,11 @@ async function testUsers(realm){
     var ret=await getToken(store.KEYCLOAK.CLIENT_ID,
         store.KEYCLOAK.GRANT_TYPE,store.KEYCLOAK.CLIENT_SECRET,
         store.KEYCLOAK.SCOPE,store.KEYCLOAK.USER_NAME,
-        store.KEYCLOAK.PASS);
-    ret=await getAllUsers(ret.access_token,realm); 
+        store.KEYCLOAK.PASS).catch(error=> {console.log("ERR_KEYCLOAK_AUTHENTICATION:",error)});
+    ret=await getAllUsers(ret.access_token,realm);
     return ret;
 }
 
 module.exports = {
     getUsersList:testUsers
 }
-//testAuth();
-//testUsers();

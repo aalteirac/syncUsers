@@ -4,7 +4,8 @@
   "description": "Generic user sync for Tableau ",
   "main": "index.js",
   "dependencies": {
-    "unirest": "^0.6.0"
+    "unirest": "^0.6.0",
+    "yargs": "^16.0.3"
   },
   "devDependencies": {},
   "scripts": {
