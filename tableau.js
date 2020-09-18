@@ -85,7 +85,6 @@ async function createUser(token,siteid,user){
     })
 }
 
-//user: id,fullname,email,password,name,siteRole,authSetting
 async function updateUser(token,siteid,user){
     return new Promise((resolve, reject) => {
         var	data= {
@@ -113,7 +112,6 @@ async function updateUser(token,siteid,user){
     })
 }
 
-//user: id,fullname,email,password,name,siteRole,authSetting
 async function addUser(token,siteid,user){
     var res=await createUser(token,siteid,user);
     if(res.error) throw res.error;
