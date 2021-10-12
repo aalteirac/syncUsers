@@ -1,5 +1,5 @@
-import { addUser } from "./lib/tableau.js";
-import { getUsersList } from "./lib/keycloak.js";
+import { addUser,getUsersList } from "./lib/tableau.js";
+import { getKCUsersList } from "./lib/keycloak.js";
 import { help_splash } from "./lib/help.js";
 import { createInterface } from "readline";
 import yargs from 'yargs'
@@ -12,7 +12,7 @@ const confirm=createInterface({
 })
 
 async function compareRepo(realm,strole,authset){
-    var tbu=await tab.getUsersList();
+    var tbu=await getUsersList();
     var kcu=await getUsersList(realm);
     // console.log(kcu)
     // return;
