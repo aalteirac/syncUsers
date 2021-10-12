@@ -1,18 +1,21 @@
-var tab=require("./lib/tableau");
-var kc=require("./lib/keycloak");
-var help=require("./lib/help");
-const readline=require("readline");
-const yargs = require('yargs');
+import { addUser } from "./lib/tableau.js";
+import { getUsersList } from "./lib/keycloak.js";
+import { help_splash } from "./lib/help.js";
+import { createInterface } from "readline";
+import yargs from 'yargs'
+import { hideBin } from 'yargs/helpers'
 var log=true;
 
-const confirm=readline.createInterface({
+const confirm=createInterface({
     input:process.stdin,
     output:process.stdout
 })
 
 async function compareRepo(realm,strole,authset){
     var tbu=await tab.getUsersList();
-    var kcu=await kc.getUsersList(realm);
+    var kcu=await getUsersList(realm);
+    // console.log(kcu)
+    // return;
     var toCreate=[];
     var toDelete=[];
     kcu.map((kcuser)=>{
@@ -53,7 +56,7 @@ async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDef
         if(e.toLowerCase()=="y")
             ret.toAdd.map(async (el)=>{
                 try {
-                    var ret=await tab.addUser(el);
+                    var ret=await addUser(el);
                     logit(`INFO: ${el.name} successfully imported`);
                 } catch (error) {
                     logit(`ERROR: ${el.name} not imported,`,error.error)
@@ -82,7 +85,7 @@ function logit(mess,scnd=""){
         console.log(mess,scnd);
 }
 
-yargs.command('compare', 'Compare KeyCloak and Tableau Users', (yargs) => {}, async (argv) => {
+yargs(hideBin(process.argv)).command('compare', 'Compare KeyCloak and Tableau Users', (yargs) => {}, async (argv) => {
         if(!argv.realm)
             console.log("Missing arguments...")
         else{
@@ -104,6 +107,6 @@ yargs.command('compare', 'Compare KeyCloak and Tableau Users', (yargs) => {}, as
             await sync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,true);
         }  
     }).command('*', 'KeyCloak->Tableau Sync Users Utility', (yargs) => {}, (argv) => {
-        console.log(help.help_splash);
+        console.log(help_splash);
         process.exit(0);
     }).argv;

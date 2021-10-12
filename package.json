@@ -1,11 +1,12 @@
 {
   "name": "syncusers",
-  "version": "1.0.0",
+  "type": "module",
+  "version": "1.1.0",
   "description": "Generic user sync for Tableau ",
   "main": "index.js",
   "dependencies": {
     "unirest": "^0.6.0",
-    "yargs": "^16.0.3"
+    "yargs": "^17.2.1"
   },
   "devDependencies": {},
   "scripts": {
