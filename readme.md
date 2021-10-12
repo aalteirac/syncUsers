@@ -25,7 +25,7 @@ node index.js compare --NOCERT --reaml=myrealm
 
 Run the following command to synchronize Users from KeyCloak to Tableau :
 
-node index.js sync --NOCERT --reaml=testsaml --defaultSiteRole=Viewer --defaultAuthSetting=ServerDefault
+node index.js sync --NOCERT --realm=testsaml --defaultSiteRole=Viewer --defaultAuthSetting=ServerDefault
 
 --NOLOG                    Disable log message
 
