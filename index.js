@@ -13,7 +13,7 @@ const confirm=createInterface({
 
 async function compareRepo(realm,strole,authset){
     var tbu=await getUsersList();
-    var kcu=await getUsersList(realm);
+    var kcu=await getKCUsersList(realm);
     // console.log(kcu)
     // return;
     var toCreate=[];
