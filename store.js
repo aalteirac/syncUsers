@@ -4,7 +4,7 @@ export const TABLEAU={
         API_ID:"<TOKEN_NAME>",
         API_TOKEN:"<TOKEN>",
         PROTOCOL:"https" //http or https
-    },
+    };
 export const KEYCLOAK={
         HOST:"<KC_HOST_NAME>",
         CLIENT_ID:"<ID>",
@@ -14,6 +14,6 @@ export const KEYCLOAK={
         USER_NAME:"<USER_NAME>",
         PASS:"<PASSWORD>",
         PROTOCOL:"http"
-    }
+    };
 
     
