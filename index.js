@@ -12,10 +12,10 @@ const confirm=createInterface({
 })
 
 async function compareRepo(realm,strole,authset){
-    var tbu=await getUsersList();
     var kcu=await getKCUsersList(realm);
     // console.log(kcu)
     // return;
+    var tbu=await getUsersList();
     var toCreate=[];
     var toDelete=[];
     kcu.map((kcuser)=>{
