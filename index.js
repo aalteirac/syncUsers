@@ -1,4 +1,4 @@
-import { addUser,getUsersList } from "./lib/tableau.js";
+import { addUser,getUsersList,unLicenseTableauUser } from "./lib/tableau.js";
 import { getKCUsersList } from "./lib/keycloak.js";
 import { help_splash } from "./lib/help.js";
 import { createInterface } from "readline";
@@ -31,6 +31,7 @@ async function compareRepo(realm,strole,authset){
                 siteRole:strole,
                 password:"",
                 authSetting:authset,
+                groups:kcuser.groups,
                 email:kcuser.email
             });
         }
@@ -51,12 +52,13 @@ async function compareRepo(realm,strole,authset){
 async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDefault",force){
     console.log('Comparing repositories now...');
     var ret=await compareRepo(realm,defaultSiteRole,defaultAuthSetting);
-    console.log("The following users are not yet in Tableau:",ret.toAdd)
+    console.log("The following users are not yet in Tableau:",ret.toAdd);
+    console.log("The following users need to be Unlicensed in Tableau:",ret.toDel)
     if(typeof(force)=='undefined'){
-        confirm.question(`Are you sure you want to create ${ret.toAdd.length} user${ret.toAdd.length>1?"s":""} in Tableau (Y/N)?  `, (e)=>{
+        confirm.question(`Are you sure you want to create ${ret.toAdd.length} user${ret.toAdd.length>1?"s":""} and unlicense ${ret.toDel.length} user${ret.toDel.length>1?"s":""} in Tableau (Y/N)?  `, (e)=>{
             if(e.toLowerCase()=="y")
                 doit(ret)
-            confirm.close();
+            //confirm.close();
         });
     }
     else{
@@ -74,6 +76,32 @@ async function doit(ret){
             logit(`ERROR: ${el.name} not imported,`,error.error)
         }
     });
+    for (let index = 0; index < ret.toDel.length; index++) {
+        const element = ret.toDel[index];
+        await unlicenseUser(element);
+        //confirm.close();
+    }
+    confirm.close();
+}
+
+async function unlicenseUser(user){
+    return new Promise((resolve, reject) => {
+        try {
+            confirm.question(`Are you sure you want to unlicense  ${user.fullName} ?  `, async (e2)=>{
+                if(e2.toLowerCase()=="y"){
+                    var ret=await unLicenseTableauUser(user);
+                    logit(`INFO: ${user.name} successfully unlicensed`);
+                    resolve();
+                }
+                resolve();
+                //confirm.close();
+            });
+        } catch (error) {
+            logit(`ERROR: ${el.name} not unlicensed,`,error);
+            //confirm.close();
+            reject();
+        }
+    })
 }
 async function goCompare(realm){
     console.log('Comparing repositories now...');
@@ -83,6 +111,8 @@ async function goCompare(realm){
         console.log("Exist in KC but not in Tableau",ret.toAdd)
         console.log('-----------------------------------------------------------------------------------------------');
         console.log("Exist in Tableau but not in KC",ret.toDel)
+        console.log('-----------------------------------------------------------------------------------------------');
+        console.log("To be Updated based on KC Definition",ret.toUpdt)
     } catch (error) {
         logit(`ERROR:`,error)
     }
