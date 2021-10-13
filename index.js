@@ -48,24 +48,33 @@ async function compareRepo(realm,strole,authset){
     return {toDel:toDelete,toAdd:toCreate}
 }
 
-async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDefault"){
+async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDefault",force){
     console.log('Comparing repositories now...');
     var ret=await compareRepo(realm,defaultSiteRole,defaultAuthSetting);
     console.log("The following users are not yet in Tableau:",ret.toAdd)
-    confirm.question(`Are you sure you want to create ${ret.toAdd.length} user${ret.toAdd.length>1?"s":""} in Tableau (Y/N)?  `, (e)=>{
-        if(e.toLowerCase()=="y")
-            ret.toAdd.map(async (el)=>{
-                try {
-                    var ret=await addUser(el);
-                    logit(`INFO: ${el.name} successfully imported`);
-                } catch (error) {
-                    logit(`ERROR: ${el.name} not imported,`,error.error)
-                }
+    if(typeof(force)=='undefined'){
+        confirm.question(`Are you sure you want to create ${ret.toAdd.length} user${ret.toAdd.length>1?"s":""} in Tableau (Y/N)?  `, (e)=>{
+            if(e.toLowerCase()=="y")
+                doit(ret)
+            confirm.close();
         });
+    }
+    else{
+        doit(ret);
         confirm.close();
+    }
+    
+}
+async function doit(ret){
+    ret.toAdd.map(async (el)=>{
+        try {
+            var ret=await addUser(el);
+            logit(`INFO: ${el.name} successfully imported`);
+        } catch (error) {
+            logit(`ERROR: ${el.name} not imported,`,error.error)
+        }
     });
 }
-
 async function goCompare(realm){
     console.log('Comparing repositories now...');
     try {
@@ -104,7 +113,7 @@ yargs(hideBin(process.argv)).command('compare', 'Compare KeyCloak and Tableau Us
                 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             if(argv.NOLOG)
                 log=false;    
-            await sync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,true);
+            await sync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,argv.FORCE);
         }  
     }).command('*', 'KeyCloak->Tableau Sync Users Utility', (yargs) => {}, (argv) => {
         console.log(help_splash);
