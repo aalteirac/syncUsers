@@ -58,7 +58,8 @@ async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDef
         confirm.question(`Are you sure you want to create ${ret.toAdd.length} user${ret.toAdd.length>1?"s":""} and unlicense ${ret.toDel.length} user${ret.toDel.length>1?"s":""} in Tableau (Y/N)?  `, (e)=>{
             if(e.toLowerCase()=="y")
                 doit(ret)
-            //confirm.close();
+            else    
+                confirm.close();
         });
     }
     else{
