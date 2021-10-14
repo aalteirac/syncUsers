@@ -55,7 +55,7 @@ async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDef
     console.log("The following users are not yet in Tableau:",ret.toAdd);
     console.log("The following users need to be Unlicensed in Tableau:",ret.toDel)
     if(typeof(force)=='undefined'){
-        confirm.question(`Are you sure you want to create ${ret.toAdd.length} user${ret.toAdd.length>1?"s":""} and unlicense ${ret.toDel.length} user${ret.toDel.length>1?"s":""} in Tableau (Y/N)?  `, (e)=>{
+        confirm.question(`Are you sure you want to create ${ret.toAdd.length} user${ret.toAdd.length>1?"s":""} and unlicense ${ret.toDel.length} user${ret.toDel.length>1?"s":""} in Tableau (Y/N)?\nNote: You will still have the opportunity to determine which individuals to unlicense on the next step.  `, (e)=>{
             if(e.toLowerCase()=="y")
                 doit(ret)
             else    
@@ -69,14 +69,16 @@ async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDef
     
 }
 async function doit(ret){
-    ret.toAdd.map(async (el)=>{
+    for (let index = 0; index < ret.toAdd.length; index++) {
+        const el = ret.toAdd[index];
         try {
-            var ret=await addUser(el);
+            await addUser(el);
             logit(`INFO: ${el.name} successfully imported`);
         } catch (error) {
             logit(`ERROR: ${el.name} not imported,`,error.error)
         }
-    });
+        
+    }
     for (let index = 0; index < ret.toDel.length; index++) {
         const element = ret.toDel[index];
         await unlicenseUser(element);
