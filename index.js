@@ -282,7 +282,7 @@ yargs(hideBin(process.argv)).command('compare', 'Compare KeyCloak and Tableau Us
             await goCompare(argv.realm,"N/A","N/A");
         }
         process.exit(0);
-    }).command('sync', 'Synchronize KeyCloak and Tableau Users', (yargs) => {}, async (argv) => {
+    }).command('usersync', 'Synchronize KeyCloak and Tableau Users', (yargs) => {}, async (argv) => {
         if(!argv.defaultSiteRole || !argv.defaultAuthSetting || !argv.realm)
             console.log("Missing arguments...")
         else{

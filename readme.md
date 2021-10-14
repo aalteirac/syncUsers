@@ -28,7 +28,7 @@ Run the following command to only compare Users (no modification in any reposito
 
 Run the following command to synchronize Users from KeyCloak to Tableau :
 
-    node index.js sync --NOCERT --realm=testsaml --defaultSiteRole=Viewer 
+    node index.js usersync --NOCERT --realm=testsaml --defaultSiteRole=Viewer 
                        --defaultAuthSetting=ServerDefault
 
 \-\-FORCE 
@@ -87,7 +87,7 @@ Run the following command to synchronize Users from KeyCloak to Tableau :
 
 Example:
 
-    node index.js sync --realm=testsaml --defaultSiteRole=Creator --defaultAuthSetting=ServerDefault 
+    node index.js usersync --realm=testsaml --defaultSiteRole=Creator --defaultAuthSetting=ServerDefault 
                        --idp_from_groups="tableau_viewer,tableau_creators" --tableau_to_group="exec,iot"
 
 ## Important note on groups
