@@ -104,5 +104,5 @@ Then if you want "MrsX" to be assigned to group "project X" and "project Y" in T
 
 - add "project X" and "project Y" entries in the *tableau_to_groups*, comma separated: 
 			
-                        \-\-tableau_to_groups ="project X,project Y"
+                        --tableau_to_groups ="project X,project Y"
 - if *tableau_to_groups* is not used, it will still add "MrsX" but only attached to default mandatory group "All Users"
