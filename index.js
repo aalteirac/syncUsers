@@ -1,4 +1,4 @@
-import { addUser,getUsersList,unLicenseTableauUser,addUserToGroup,getTableauGroupByName } from "./lib/tableau.js";
+import { addUser,getUsersList,unLicenseTableauUser,addUserToGroup,getTableauGroupByName, removeUserToGroup } from "./lib/tableau.js";
 import { getKCUsersList } from "./lib/keycloak.js";
 import { help_splash } from "./lib/help.js";
 import { createInterface } from "readline";
@@ -62,6 +62,105 @@ async function compareRepo(realm,strole,authset,idp_from_groups){
     return {toDel:toDelete,toAdd:toCreate}
 }
 
+async function getUsersBothRepo(realm){
+    var kcu=await getKCUsersList(realm);
+    var tbu=await getUsersList();
+    return {kcu:kcu,tbu:tbu}
+}
+function getIdpUsersForGroup(allusers,groupname){
+    var groupusers=allusers.filter((us)=>{
+        let found=false;
+        us.groups.map((grp)=>{
+            if(grp.name===groupname){
+                found= true;
+            }
+        })
+        return found;
+    })
+    return groupusers;
+}
+function getTableauUsersForGroup(tabusers,groupname){
+    var groupusers=tabusers.filter((us)=>{
+        let found=false;
+        us.groups.map((grp)=>{
+            if(grp.name===groupname){
+                found= true;
+            }
+        })
+        return found;
+    })
+    return groupusers;
+}
+async function groupsync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDefault",force,ignoredelete,idp_from_groups){
+    logit('Comparing Groups allocation now...');
+    idp_from_groups=idp_from_groups.split(',');
+    var ret=await getUsersBothRepo(realm);
+    var tbu=ret.tbu;
+    var kcu=ret.kcu;
+    for (let index = 0; index < idp_from_groups.length; index++) {
+        //does the group exist in tableau ?
+        var tabUserToRemove=[];
+        var tabUserToAdd=[];
+        let agroup = idp_from_groups[index];
+        let idpgroupusers=getIdpUsersForGroup(kcu,agroup);
+        let tabgroupusers=getTableauUsersForGroup(tbu,agroup);
+        //to add:
+        idpgroupusers.map((idpuser)=>{
+            var found=false;
+            tbu.map((tabu)=>{
+                if(tabu.name==idpuser.username){
+                    //check if already in the group ?
+                    var isAlready=false;
+                    tabu.groups.map((g)=>{
+                        if(g.name==agroup){
+                            isAlready=true;
+                            //console.log(tabu.name+" already in group")
+                        }
+                    })
+                    if(isAlready==false){
+                        tabUserToAdd.push(tabu);
+                    }
+                }
+            })
+            if(found==false){
+                //create the user and attach to group...
+            }
+        });
+        //to del:
+        tabgroupusers.map((tuser)=>{
+            var found=false;
+            idpgroupusers.map((idpuser)=>{
+                if(tuser.name==idpuser.username){
+                    found=true;
+                }
+            })
+            if (found==false){
+                tabUserToRemove.push(tuser);
+            }
+        })
+        //now the do the job
+        for (let index = 0; index < tabUserToAdd.length; index++) {
+            const el = tabUserToAdd[index];
+            var tabgroup=await getTableauGroupByName(agroup);
+            if(tabgroup && tabgroup.length>0){
+                tabgroup=tabgroup[0]
+                await addUserToGroup(tabgroup.id,el.id);
+                logit(`INFO: ${el.name} successfully added to ${tabgroup.name}`);
+            }    
+        }
+        for (let index = 0; index < tabUserToRemove.length; index++) {
+            const el = tabUserToRemove[index];
+            var tabgroup=await getTableauGroupByName(agroup);
+            if(tabgroup && tabgroup.length>0){
+                tabgroup=tabgroup[0]
+                await removeUserToGroup(tabgroup.id,el.id);
+                logit(`INFO: ${el.name} successfully removed from ${tabgroup.name}`);
+            }    
+        }
+    }
+    process.exit(0);
+}
+
 async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDefault",force,ignoredelete,idp_from_groups,tableau_to_group){
     logit('Comparing repositories now...');
     var ret=await compareRepo(realm,defaultSiteRole,defaultAuthSetting,idp_from_groups);
@@ -113,7 +212,7 @@ async function doit(ret,tableau_to_group,ignoredelete){
                     let gr = realTSgrp[index];
                     if(gr && gr.length>0){
                         gr=gr[0]
-                        addUserToGroup(gr.id,el.id);
+                        await addUserToGroup(gr.id,el.id);
                         logit(`INFO: ${el.name} successfully added to ${gr.name}`);
                     }
                     else{
@@ -192,6 +291,16 @@ yargs(hideBin(process.argv)).command('compare', 'Compare KeyCloak and Tableau Us
             if(argv.NOLOG)
                 log=false;    
             await sync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,argv.FORCE,argv.IGNORE_DELETION,argv.idp_from_groups,argv.tableau_to_groups);
+        }  
+    }).command('groupsync', 'Synchronize KeyCloak Group users allocation with Tableau Group users allocation', (yargs) => {}, async (argv) => {
+        if(!argv.realm || !argv.idp_from_groups)
+            console.log("Missing arguments...")
+        else{
+            if(argv.NOCERT)
+                process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+            if(argv.NOLOG)
+                log=false;    
+            await groupsync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,argv.FORCE,argv.IGNORE_DELETION,argv.idp_from_groups);
         }  
     }).command('*', 'KeyCloak->Tableau Sync Users Utility', (yargs) => {}, (argv) => {
         console.log(help_splash);
