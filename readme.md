@@ -55,7 +55,7 @@ node index.js sync --NOCERT --realm=testsaml --defaultSiteRole=Viewer --defaultA
                            Value is enclosed in double quote " and multiple groups are comma separated
                                    ex: "group1,group2"
 
---tableau_to_group         When users are added to Tableau, you can here specify the groups you want them to be attached
+--tableau_to_groups         When users are added to Tableau, you can here specify the groups you want them to be attached
                            Value is enclosed in double quote " and multiple groups are comma separated
                                    ex: "group1,group2"
                            if the group doesn't exist in Tableau it won't be created (yet :-))

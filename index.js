@@ -82,18 +82,20 @@ async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDef
     
 }
 async function doit(ret,tableau_to_group){
-    for (let index = 0; index < ret.toAdd.length; index++) {
-        const el = ret.toAdd[index];
+    if(typeof(tableau_to_group)!="undefined"){
+        tableau_to_group=tableau_to_group.split(",");
+        var realTSgrp=[];
+        for (let idx = 0; idx < tableau_to_group.length; idx++) {
+            const grp = tableau_to_group[idx];
+            realTSgrp.push(await getTableauGroupByName(grp));
+        }
+    }
+    for (let id = 0; id < ret.toAdd.length; id++) {
+        const el = ret.toAdd[id];
         try {
             await addUser(el);
             logit(`INFO: ${el.name} successfully imported`);
             if(typeof(tableau_to_group)!="undefined"){
-                tableau_to_group=tableau_to_group.split(",");
-                var realTSgrp=[];
-                for (let index = 0; index < tableau_to_group.length; index++) {
-                    const grp = tableau_to_group[index];
-                    realTSgrp.push(await getTableauGroupByName(grp));
-                }
                 for (let index = 0; index < realTSgrp.length; index++) {
                     let gr = realTSgrp[index];
                     if(gr && gr.length>0){
@@ -107,7 +109,7 @@ async function doit(ret,tableau_to_group){
                 }
             }
         } catch (error) {
-            logit(`ERROR: ${el.name} not imported,`,error.error,error)
+            logit(`ERROR: ${el.name} perhaps imported but something goes wrong... pls check,`,error.error,error)
         }
         
     }
@@ -175,7 +177,7 @@ yargs(hideBin(process.argv)).command('compare', 'Compare KeyCloak and Tableau Us
                 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             if(argv.NOLOG)
                 log=false;    
-            await sync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,argv.FORCE,argv.idp_from_groups,argv.tableau_to_group);
+            await sync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,argv.FORCE,argv.idp_from_groups,argv.tableau_to_groups);
         }  
     }).command('*', 'KeyCloak->Tableau Sync Users Utility', (yargs) => {}, (argv) => {
         console.log(help_splash);
