@@ -50,3 +50,15 @@ node index.js sync --NOCERT --realm=testsaml --defaultSiteRole=Viewer --defaultA
                                    ServerDefault
                                    SAML
                                    OpenID (Tableau Online only)
+
+--idp_from_groups          Consider only users belonging to the group(s) in the IDP (keycloak here)
+                           Value is enclosed in double quote " and multiple groups are comma separated
+                                   ex: "group1,group2"
+
+--tableau_to_group         When users are added to Tableau, you can here specify the groups you want them to be attached
+                           Value is enclosed in double quote " and multiple groups are comma separated
+                                   ex: "group1,group2"
+                           if the group doesn't exist in Tableau it won't be created (yet :-))
+
+Example:
+node index.js sync --realm=testsaml --defaultSiteRole=Creator  --defaultAuthSetting=ServerDefault --idp_from_groups="tableau_viewer,tableau_creators" --tableau_to_group="exec,iot"

@@ -1,4 +1,4 @@
-import { addUser,getUsersList,unLicenseTableauUser } from "./lib/tableau.js";
+import { addUser,getUsersList,unLicenseTableauUser,addUserToGroup,getTableauGroupByName } from "./lib/tableau.js";
 import { getKCUsersList } from "./lib/keycloak.js";
 import { help_splash } from "./lib/help.js";
 import { createInterface } from "readline";
@@ -11,10 +11,23 @@ const confirm=createInterface({
     output:process.stdout
 })
 
-async function compareRepo(realm,strole,authset){
+async function compareRepo(realm,strole,authset,idp_from_groups){
     var kcu=await getKCUsersList(realm);
-    // console.log(kcu)
-    // return;
+    if(typeof(idp_from_groups)!="undefined"){
+        logit(`INFO: Only users in IDP belonging to group(s) ${idp_from_groups} will be considered in the syncronization process.`);
+        idp_from_groups=idp_from_groups.split(',');
+        var kcu=kcu.filter((us)=>{
+            let found=false;
+            us.groups.map((grp)=>{
+                idp_from_groups.map((idpgrp)=>{
+                    if(grp.name===idpgrp){
+                        found= true;
+                    }
+                })
+            })
+            return found;
+        })
+    }
     var tbu=await getUsersList();
     var toCreate=[];
     var toDelete=[];
@@ -49,40 +62,58 @@ async function compareRepo(realm,strole,authset){
     return {toDel:toDelete,toAdd:toCreate}
 }
 
-async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDefault",force){
+async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDefault",force,idp_from_groups,tableau_to_group){
     console.log('Comparing repositories now...');
-    var ret=await compareRepo(realm,defaultSiteRole,defaultAuthSetting);
+    var ret=await compareRepo(realm,defaultSiteRole,defaultAuthSetting,idp_from_groups);
     console.log("The following users are not yet in Tableau:",ret.toAdd);
     console.log("The following users need to be Unlicensed in Tableau:",ret.toDel)
     if(typeof(force)=='undefined'){
         confirm.question(`Are you sure you want to create ${ret.toAdd.length} user${ret.toAdd.length>1?"s":""} and unlicense ${ret.toDel.length} user${ret.toDel.length>1?"s":""} in Tableau (Y/N)?\nNote: You will still have the opportunity to determine which individuals to unlicense on the next step.  `, (e)=>{
             if(e.toLowerCase()=="y")
-                doit(ret)
+                doit(ret,tableau_to_group)
             else    
                 confirm.close();
         });
     }
     else{
-        doit(ret);
+        doit(ret,tableau_to_group);
         confirm.close();
     }
     
 }
-async function doit(ret){
+async function doit(ret,tableau_to_group){
     for (let index = 0; index < ret.toAdd.length; index++) {
         const el = ret.toAdd[index];
         try {
             await addUser(el);
             logit(`INFO: ${el.name} successfully imported`);
+            if(typeof(tableau_to_group)!="undefined"){
+                tableau_to_group=tableau_to_group.split(",");
+                var realTSgrp=[];
+                for (let index = 0; index < tableau_to_group.length; index++) {
+                    const grp = tableau_to_group[index];
+                    realTSgrp.push(await getTableauGroupByName(grp));
+                }
+                for (let index = 0; index < realTSgrp.length; index++) {
+                    let gr = realTSgrp[index];
+                    if(gr && gr.length>0){
+                        gr=gr[0]
+                        addUserToGroup(gr.id,el.id);
+                        logit(`INFO: ${el.name} successfully added to ${gr.name}`);
+                    }
+                    else{
+                        logit(`WARN: ${el.name} cannot be added, group "${tableau_to_group[index]}" doesn't exist...`);
+                    }
+                }
+            }
         } catch (error) {
-            logit(`ERROR: ${el.name} not imported,`,error.error)
+            logit(`ERROR: ${el.name} not imported,`,error.error,error)
         }
         
     }
     for (let index = 0; index < ret.toDel.length; index++) {
         const element = ret.toDel[index];
         await unlicenseUser(element);
-        //confirm.close();
     }
     confirm.close();
 }
@@ -97,11 +128,9 @@ async function unlicenseUser(user){
                     resolve();
                 }
                 resolve();
-                //confirm.close();
             });
         } catch (error) {
             logit(`ERROR: ${el.name} not unlicensed,`,error);
-            //confirm.close();
             reject();
         }
     })
@@ -146,7 +175,7 @@ yargs(hideBin(process.argv)).command('compare', 'Compare KeyCloak and Tableau Us
                 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             if(argv.NOLOG)
                 log=false;    
-            await sync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,argv.FORCE);
+            await sync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,argv.FORCE,argv.idp_from_groups,argv.tableau_to_group);
         }  
     }).command('*', 'KeyCloak->Tableau Sync Users Utility', (yargs) => {}, (argv) => {
         console.log(help_splash);
