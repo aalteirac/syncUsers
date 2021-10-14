@@ -14,7 +14,7 @@ const confirm=createInterface({
 async function compareRepo(realm,strole,authset,idp_from_groups){
     var kcu=await getKCUsersList(realm);
     if(typeof(idp_from_groups)!="undefined"){
-        logit(`INFO: Only users in IDP belonging to group(s) ${idp_from_groups} will be considered in the syncronization process.`);
+        logit(`INFO: Only users in IDP belonging to group(s) ${idp_from_groups} will be considered during the syncronization process.`);
         idp_from_groups=idp_from_groups.split(',');
         var kcu=kcu.filter((us)=>{
             let found=false;
@@ -73,7 +73,9 @@ async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDef
     else if(typeof(ignoredelete)=='undefined')
         qq=ret.toDel.length>0?`Are you sure you want to unlicense ${ret.toDel.length} user${ret.toDel.length>1?"s":""}`:qq
     if(qq!="")   
-        qq=qq+" in Tableau (Y/N)?\nNote: You will still have the opportunity to determine which individuals to unlicense on the next step:" 
+        qq=qq+" in Tableau (Y/N)?" 
+    if(ret.toDel.length>0 && typeof(ignoredelete)=='undefined')
+        qq=qq+"\nNote: You will still have the opportunity to determine which individuals to unlicense on the next step:";    
     if(qq==""){
         logit("No change to perform, all good then !");
         process.exit(0);
