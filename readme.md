@@ -48,6 +48,7 @@ Run the following command to synchronize Users from KeyCloak to Tableau :
 
 \-\-defaultSiteRole 
   - Default Site Role assigned to new users created in Tableau
+  
     -- Values can be:
 
 				Viewer
@@ -68,13 +69,12 @@ Run the following command to synchronize Users from KeyCloak to Tableau :
 
 \-\-defaultAuthSetting 
  - Default Authentication Setting assigned to new users created in Tableau
+	
 	--Values can be:
 			
 			ServerDefault
 			SAML
 			OpenID (Tableau Online only)
-
-  
 
 \-\-idp_from_groups 
  - Consider only users belonging to the group(s) in the IDP (keycloak
