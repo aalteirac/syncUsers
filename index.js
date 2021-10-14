@@ -62,26 +62,37 @@ async function compareRepo(realm,strole,authset,idp_from_groups){
     return {toDel:toDelete,toAdd:toCreate}
 }
 
-async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDefault",force,idp_from_groups,tableau_to_group){
-    console.log('Comparing repositories now...');
+async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDefault",force,ignoredelete,idp_from_groups,tableau_to_group){
+    logit('Comparing repositories now...');
     var ret=await compareRepo(realm,defaultSiteRole,defaultAuthSetting,idp_from_groups);
-    console.log("The following users are not yet in Tableau:",ret.toAdd);
-    console.log("The following users need to be Unlicensed in Tableau:",ret.toDel)
+    if(ret.toAdd.length>0)logit("The following users are not yet in Tableau:",ret.toAdd);
+    if(typeof(ignoredelete)=='undefined')logit("The following users need to be Unlicensed in Tableau:",ret.toDel);
+    var qq=ret.toAdd.length>0?`Are you sure you want to create ${ret.toAdd.length} user${ret.toAdd.length>1?"s":""}`:""
+    if(qq!="" && typeof(ignoredelete)=='undefined')
+        qq=ret.toDel.length>0?qq+` and unlicense ${ret.toDel.length} user${ret.toDel.length>1?"s":""}`:qq
+    else if(typeof(ignoredelete)=='undefined')
+        qq=ret.toDel.length>0?`Are you sure you want to unlicense ${ret.toDel.length} user${ret.toDel.length>1?"s":""}`:qq
+    if(qq!="")   
+        qq=qq+" in Tableau (Y/N)?\nNote: You will still have the opportunity to determine which individuals to unlicense on the next step:" 
+    if(qq==""){
+        logit("No change to perform, all good then !");
+        process.exit(0);
+    }    
     if(typeof(force)=='undefined'){
-        confirm.question(`Are you sure you want to create ${ret.toAdd.length} user${ret.toAdd.length>1?"s":""} and unlicense ${ret.toDel.length} user${ret.toDel.length>1?"s":""} in Tableau (Y/N)?\nNote: You will still have the opportunity to determine which individuals to unlicense on the next step.  `, (e)=>{
+        confirm.question(qq, (e)=>{
             if(e.toLowerCase()=="y")
-                doit(ret,tableau_to_group)
+                doit(ret,tableau_to_group,ignoredelete)
             else    
                 confirm.close();
         });
     }
     else{
-        doit(ret,tableau_to_group);
+        doit(ret,tableau_to_group,ignoredelete);
         confirm.close();
     }
     
 }
-async function doit(ret,tableau_to_group){
+async function doit(ret,tableau_to_group,ignoredelete){
     if(typeof(tableau_to_group)!="undefined"){
         tableau_to_group=tableau_to_group.split(",");
         var realTSgrp=[];
@@ -113,6 +124,7 @@ async function doit(ret,tableau_to_group){
         }
         
     }
+    if(typeof(ignoredelete)=='undefined')
     for (let index = 0; index < ret.toDel.length; index++) {
         const element = ret.toDel[index];
         await unlicenseUser(element);
@@ -177,7 +189,7 @@ yargs(hideBin(process.argv)).command('compare', 'Compare KeyCloak and Tableau Us
                 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             if(argv.NOLOG)
                 log=false;    
-            await sync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,argv.FORCE,argv.idp_from_groups,argv.tableau_to_groups);
+            await sync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,argv.FORCE,argv.IGNORE_DELETION,argv.idp_from_groups,argv.tableau_to_groups);
         }  
     }).command('*', 'KeyCloak->Tableau Sync Users Utility', (yargs) => {}, (argv) => {
         console.log(help_splash);
