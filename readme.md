@@ -23,6 +23,25 @@ Run the following command to only compare Users (no modification in any reposito
 \-\-realm 
 - The KeyCloak realm name to compare
 
+------------------------------------------GROUPSYNC USAGE------------------------------------------
+
+Run the following command to synchronize Group(s) user allocation from KeyCloak to Tableau :
+
+    node index.js groupsync --realm=testsaml --idp_from_groups="tableau_creator,tableau_viewer"
+
+\-\-FORCE 
+- Disable confirmation, be sure of what you're doing :-)
+
+\-\-NOLOG 
+- Disable log message
+
+\-\-realm 
+- The KeyCloak realm name to compare
+
+\-\-idp_from_groups          
+- The group(s) to synchronize user allocation from the IDP (keycloak here) to Tableau
+                           Value is enclosed in double quote " and multiple groups are comma separated
+                                   ex: "group1,group2"
   
 ------------------------------------------SYNC USAGE-------------------------------------------
 
