@@ -118,7 +118,7 @@ async function _groupsync(realm,force,idp_from_groups){
         process.exit(0); 
     }
     else{
-        var hasChanges=prettyprintGroupCompare(resultingChanges)
+        var hasChanges=await prettyprintGroupCompare(resultingChanges)
         if(hasChanges==true)
             confirm.question(`Are you sure to synchronize group allocation for "${idp_from_groups}" ?`, async (e)=>{
                 if(e.toLowerCase()=="y")
