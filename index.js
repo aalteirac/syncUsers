@@ -91,12 +91,64 @@ function getTableauUsersForGroup(tabusers,groupname){
     })
     return groupusers;
 }
-async function groupsync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDefault",force,ignoredelete,idp_from_groups){
+
+async function prettyprintGroupCompare(resultCompare){
+    var something=false;
+    for (let index = 0; index < resultCompare.groups.length; index++) {
+        let agroup = resultCompare.groups[index];
+        let tabUserToAdd = resultCompare.tabtoadd[index];
+        let tabUserToRemove = resultCompare.tabtoremove[index];
+        for (let i = 0; i < tabUserToAdd.length; i++) {
+            const el = tabUserToAdd[i];
+            logit(`INFO: ${el.name} will be added to ${agroup}`);
+            something=true;
+        }
+        for (let z = 0; z < tabUserToRemove.length; z++) {
+            const el = tabUserToRemove[z];
+            logit(`INFO: ${el.name} will be removed from ${agroup}`);
+            something=true;         
+        }
+    }
+    return something
+}
+async function _groupsync(realm,force,idp_from_groups){
+    var resultingChanges=await groupsyncCompare(realm,idp_from_groups);  
+    if(force){
+        await groupsync(resultingChanges);
+        process.exit(0); 
+    }
+    else{
+        var hasChanges=prettyprintGroupCompare(resultingChanges)
+        if(hasChanges==true)
+            confirm.question(`Are you sure to synchronize group allocation for "${idp_from_groups}" ?`, async (e)=>{
+                if(e.toLowerCase()=="y")
+                    await groupsync(resultingChanges);
+                else    
+                    confirm.close();
+                process.exit(0);     
+            })
+        else{
+            logit("No change to perform, all good then !");
+            process.exit(0);     
+        }
+             
+    }    
+}
+async function groupsync(resultCompare){
+    for (let index = 0; index < resultCompare.groups.length; index++) {
+        let agroup = resultCompare.groups[index];
+        let tabUserToAdd = resultCompare.tabtoadd[index];
+        let tabUserToRemove = resultCompare.tabtoremove[index];
+        await allocateThem(tabUserToAdd,tabUserToRemove,agroup) ;
+    }
+}
+async function groupsyncCompare(realm,idp_from_groups){
     logit('Comparing Groups allocation now...');
     idp_from_groups=idp_from_groups.split(',');
     var ret=await getUsersBothRepo(realm);
     var tbu=ret.tbu;
     var kcu=ret.kcu;
+    var resultingChanges={groups:[],tabtoadd:[],tabtoremove:[]}
     for (let index = 0; index < idp_from_groups.length; index++) {
         //does the group exist in tableau ?
         var tabUserToRemove=[];
@@ -114,7 +166,6 @@ async function groupsync(realm,defaultSiteRole="Viewer",defaultAuthSetting="Serv
                     tabu.groups.map((g)=>{
                         if(g.name==agroup){
                             isAlready=true;
-                            //console.log(tabu.name+" already in group")
                         }
                     })
                     if(isAlready==false){
@@ -138,27 +189,32 @@ async function groupsync(realm,defaultSiteRole="Viewer",defaultAuthSetting="Serv
                 tabUserToRemove.push(tuser);
             }
         })
-        //now the do the job
-        for (let index = 0; index < tabUserToAdd.length; index++) {
-            const el = tabUserToAdd[index];
-            var tabgroup=await getTableauGroupByName(agroup);
-            if(tabgroup && tabgroup.length>0){
-                tabgroup=tabgroup[0]
-                await addUserToGroup(tabgroup.id,el.id);
-                logit(`INFO: ${el.name} successfully added to ${tabgroup.name}`);
-            }    
-        }
-        for (let index = 0; index < tabUserToRemove.length; index++) {
-            const el = tabUserToRemove[index];
-            var tabgroup=await getTableauGroupByName(agroup);
-            if(tabgroup && tabgroup.length>0){
-                tabgroup=tabgroup[0]
-                await removeUserToGroup(tabgroup.id,el.id);
-                logit(`INFO: ${el.name} successfully removed from ${tabgroup.name}`);
-            }    
-        }
+        resultingChanges.groups.push(agroup);
+        resultingChanges.tabtoadd.push(tabUserToAdd);
+        resultingChanges.tabtoremove.push(tabUserToRemove);
     }
-    process.exit(0);
+    return resultingChanges;
+}
+
+async function allocateThem(tabUserToAdd,tabUserToRemove,agroup){
+    for (let index = 0; index < tabUserToAdd.length; index++) {
+        const el = tabUserToAdd[index];
+        var tabgroup=await getTableauGroupByName(agroup);
+        if(tabgroup && tabgroup.length>0){
+            tabgroup=tabgroup[0]
+            await addUserToGroup(tabgroup.id,el.id);
+            logit(`INFO: ${el.name} successfully added to ${tabgroup.name}`);
+        }    
+    }
+    for (let index = 0; index < tabUserToRemove.length; index++) {
+        const el = tabUserToRemove[index];
+        var tabgroup=await getTableauGroupByName(agroup);
+        if(tabgroup && tabgroup.length>0){
+            tabgroup=tabgroup[0]
+            await removeUserToGroup(tabgroup.id,el.id);
+            logit(`INFO: ${el.name} successfully removed from ${tabgroup.name}`);
+        }    
+    }
 }
 
 async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDefault",force,ignoredelete,idp_from_groups,tableau_to_group){
@@ -299,8 +355,8 @@ yargs(hideBin(process.argv)).command('compare', 'Compare KeyCloak and Tableau Us
             if(argv.NOCERT)
                 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             if(argv.NOLOG)
-                log=false;    
-            await groupsync(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,argv.FORCE,argv.IGNORE_DELETION,argv.idp_from_groups);
+                log=false;      
+            await _groupsync(argv.realm,argv.FORCE,argv.idp_from_groups);
         }  
     }).command('*', 'KeyCloak->Tableau Sync Users Utility', (yargs) => {}, (argv) => {
         console.log(help_splash);
