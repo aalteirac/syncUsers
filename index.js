@@ -67,6 +67,7 @@ async function getUsersBothRepo(realm){
     var tbu=await getUsersList();
     return {kcu:kcu,tbu:tbu}
 }
+
 function getIdpUsersForGroup(allusers,groupname){
     var groupusers=allusers.filter((us)=>{
         let found=false;
@@ -79,6 +80,7 @@ function getIdpUsersForGroup(allusers,groupname){
     })
     return groupusers;
 }
+
 function getTableauUsersForGroup(tabusers,groupname){
     var groupusers=tabusers.filter((us)=>{
         let found=false;
@@ -111,6 +113,7 @@ async function prettyprintGroupCompare(resultCompare){
     }
     return something
 }
+
 async function _groupsync(realm,force,idp_from_groups){
     var resultingChanges=await groupsyncCompare(realm,idp_from_groups);  
     if(force){
@@ -134,6 +137,7 @@ async function _groupsync(realm,force,idp_from_groups){
              
     }    
 }
+
 async function groupsync(resultCompare){
     for (let index = 0; index < resultCompare.groups.length; index++) {
         let agroup = resultCompare.groups[index];
@@ -142,6 +146,7 @@ async function groupsync(resultCompare){
         await allocateThem(tabUserToAdd,tabUserToRemove,agroup) ;
     }
 }
+
 async function groupsyncCompare(realm,idp_from_groups){
     logit('Comparing Groups allocation now...');
     idp_from_groups=idp_from_groups.split(',');
@@ -249,6 +254,7 @@ async function sync(realm,defaultSiteRole="Viewer",defaultAuthSetting="ServerDef
     }
     
 }
+
 async function doit(ret,tableau_to_group,ignoredelete){
     if(typeof(tableau_to_group)!="undefined"){
         tableau_to_group=tableau_to_group.split(",");
@@ -306,6 +312,7 @@ async function unlicenseUser(user){
         }
     })
 }
+
 async function goCompare(realm){
     console.log('Comparing repositories now...');
     try {
