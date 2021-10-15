@@ -8,20 +8,35 @@ if you need help to setup KeyCloak admin API: https://developers.redhat.com/blog
 
 ---------------FIRST FILL "store.js" INFORMATION TO CONNECT TABLEAU AND KEYCLOAK---------------
 
-----------------------------------------COMPARE USAGE------------------------------------------
+--------------------------------------------COMPAREUSER USAGE------------------------------------------
 
 Run the following command to only compare Users (no modification in any repositories) :
 
-    node index.js compare --NOCERT --reaml=myrealm
+    node index.js compareuser --NOCERT --reaml=myrealm
 
-\-\-NOLOG 
- - Disable log message
 
 \-\-NOCERT 
  - Do not check ssl certificate validity
 
 \-\-realm 
 - The KeyCloak realm name to compare
+
+--------------------------------------------COMPAREGROUP USAGE------------------------------------------
+
+Run the following command to only compare Users (no modification in any repositories) :
+
+    node index.js comparegroup --NOCERT --reaml=myrealm --idp_from_groups="tableau_creator,tableau_viewer
+
+
+\-\-NOCERT 
+ - Do not check ssl certificate validity
+
+\-\-realm 
+- The KeyCloak realm name to compare
+
+\-\-idp_from_groups          
+- The group(s) to synchronize user allocation from the IDP (keycloak here) to Tableau
+        -- Value is enclosed in double quote " and multiple groups are comma separated, ex: "group1,group2"
 
 ------------------------------------------GROUPSYNC USAGE------------------------------------------
 
@@ -40,8 +55,7 @@ Run the following command to synchronize Group(s) user allocation from KeyCloak 
 
 \-\-idp_from_groups          
 - The group(s) to synchronize user allocation from the IDP (keycloak here) to Tableau
-                           Value is enclosed in double quote " and multiple groups are comma separated
-                                   ex: "group1,group2"
+        -- Value is enclosed in double quote " and multiple groups are comma separated, ex: "group1,group2"
   
 ------------------------------------------SYNC USAGE-------------------------------------------
 

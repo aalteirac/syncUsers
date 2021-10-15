@@ -327,15 +327,25 @@ function logit(mess,scnd=""){
         console.log(mess,scnd);
 }
 
-yargs(hideBin(process.argv)).command('compare', 'Compare KeyCloak and Tableau Users', (yargs) => {}, async (argv) => {
+yargs(hideBin(process.argv)).command('compareuser', 'Compare KeyCloak and Tableau Users', (yargs) => {}, async (argv) => {
         if(!argv.realm)
             console.log("Missing arguments...")
         else{
             if(argv.NOCERT)
                 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
-            if(argv.NOLOG)
-                log=false;  
             await goCompare(argv.realm,"N/A","N/A");
+        }
+        process.exit(0);
+    }).command('comparegroup', 'Compare KeyCloak group allocaltion with Tableau group allocation', (yargs) => {}, async (argv) => {
+        if(!argv.realm || !argv.idp_from_groups)
+            console.log("Missing arguments...")
+        else{
+            if(argv.NOCERT)
+                process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+            var resultingChanges=await groupsyncCompare(argv.realm,argv.idp_from_groups); 
+            var hasChanges=await prettyprintGroupCompare(resultingChanges)
+            if(hasChanges==false)
+                logit("No change to perform, all good then !");
         }
         process.exit(0);
     }).command('usersync', 'Synchronize KeyCloak and Tableau Users', (yargs) => {}, async (argv) => {
