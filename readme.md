@@ -32,7 +32,8 @@ Run the following command to only compare Users (no modification in any reposito
 
 \-\-idp_from_groups (Mandatory)          
 - The group(s) to synchronize user allocation from the IDP to Tableau
-        -- Value is enclosed in double quotes " and multiple groups are comma separated, ex: "group1,group2"
+
+  -- Value is enclosed in double quotes " and multiple groups are comma separated, ex: "group1,group2"
 
 --------------------------------------------COMPAREGROUP USAGE------------------------------------------
 
@@ -57,7 +58,8 @@ Run the following command to only compare group user allocations (no modificatio
 
 \-\-idp_from_groups (Mandatory)          
 - The group(s) to synchronize user allocation from the IDP to Tableau
-        -- Value is enclosed in double quotes " and multiple groups are comma separated, ex: "group1,group2"
+  
+  -- Value is enclosed in double quotes " and multiple groups are comma separated, ex: "group1,group2"
 
 ------------------------------------------GROUPSYNC USAGE------------------------------------------
 
@@ -90,7 +92,8 @@ Run the following command to synchronize Group(s) user allocation from IDP to Ta
 
 \-\-idp_from_groups (Mandatory)         
 - The group(s) to synchronize user allocation from the IDP to Tableau
-        -- Value is enclosed in double quotes " and multiple groups are comma separated, ex: "group1,group2"
+
+  -- Value is enclosed in double quotes " and multiple groups are comma separated, ex: "group1,group2"
 
 \-\-defaultSiteRole (Optional, default is "Unlicensed")
   - Default Site Role assigned to new users created in Tableau
