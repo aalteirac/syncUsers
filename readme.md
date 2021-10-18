@@ -20,7 +20,8 @@ Run the following command to only compare Users (no modification in any reposito
 
 \-\-IDP (Optional, default is "AUTH0")
   - Choose the source IDP
-        -- Value can be:
+
+	-- Value can be:
       KC      => for Keycloak
       AUTH0   => for Auth0 
 
@@ -43,7 +44,7 @@ Run the following command to only compare group user allocations (no modificatio
 
 \-\-IDP (Optional, default is "AUTH0")
   - Choose the source IDP
-        -- Value can be:
+  -- Value can be:
 
 				KC      => for Keycloak
         AUTH0   => for Auth0  
