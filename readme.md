@@ -1,4 +1,4 @@
-# NODEJS IDP => TABLEAU SYNC UTILITY
+# IDP => TABLEAU SYNC UTILITY in NODEJS 
 
 Install nodejs from https://nodejs.org/en/download/
 
@@ -129,6 +129,9 @@ Run the following command to synchronize Group(s) user allocation from IDP to Ta
 			OpenID        => (Tableau Online only)
 
 # Coming Next
+
+A new parameter to CREATE_USER if it doesn't exist in Tableau, default will be false... Today no choice, the user is created...
+
 An extra command to update Tableau user licenses in designated group(s)
 
 Something like: 
