@@ -124,3 +124,10 @@ Run the following command to synchronize Group(s) user allocation from IDP to Ta
 			ServerDefault => default value
 			SAML
 			OpenID        => (Tableau Online only)
+
+# What's coming Next
+An extra command to update Tableau user licenses in designated group(s)
+
+Something like: 
+
+    node index.js compareuser --NOCERT --reaml=myrealm
