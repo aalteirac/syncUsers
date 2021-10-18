@@ -10,10 +10,15 @@ export const KEYCLOAK={
         CLIENT_ID:"<ID>",
         GRANT_TYPE:"password", //leave as it is
         CLIENT_SECRET:"<SECRET>",
-        SCOPE:"openid",
+        SCOPE:"openid",//leave as it is
         USER_NAME:"<USER_NAME>",
         PASS:"<PASSWORD>",
-        PROTOCOL:"http"
+        PROTOCOL:"http"// http or https
     };
-
+export const AUTH0 = {
+    CLIENT_ID: "<clientID>",
+    GRANT_TYPE: "client_credentials",//leave as it is
+    CLIENT_SECRET: "<clientSecret>",
+    SCOPE: "",//leave as it is
+    };
     
