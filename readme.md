@@ -136,4 +136,4 @@ An extra command to update Tableau user licenses in designated group(s)
 
 Something like: 
 
-    node index.js updateLicence --groups="tableau_explorer" --defaultSiteRole=Explorer
+    node index.js updateLicence --tableau_groups="tableau_explorer" --defaultSiteRole=Explorer
