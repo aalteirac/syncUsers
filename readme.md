@@ -65,7 +65,7 @@ Run the following command to only compare group user allocations (no modificatio
 
 Run the following command to synchronize Group(s) user allocation from IDP to Tableau :
 
-    node index.js groupsync --NOCERT --IDP=KC --IGNORE_DELETION --realm=testsaml --idp_from_groups="tableau_creator,tableau_viewer"
+    node index.js groupsync --NOCERT --IDP=KC --IGNORE_DELETION --realm=testsaml --idp_from_groups="tableau_creator,tableau_viewer" --defaultSiteRole=Viewer 
 
 \-\-FORCE (Optional, default is "false")
 - Disable confirmation, be sure of what you're doing :-)
@@ -125,9 +125,9 @@ Run the following command to synchronize Group(s) user allocation from IDP to Ta
 			SAML
 			OpenID        => (Tableau Online only)
 
-# What's coming Next
+# Coming Next
 An extra command to update Tableau user licenses in designated group(s)
 
 Something like: 
 
-    node index.js compareuser --NOCERT --reaml=myrealm
+    node index.js updateLicence --reaml=myrealm --defaultSiteRole=ExplorerCanPublish
