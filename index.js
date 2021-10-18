@@ -347,13 +347,13 @@ async function unlicenseUser(user){
 }
 
 async function goCompare(realm,defaultSiteRole="Unlicensed",defaultAuthSetting="ServerDefault",idp_from_groups){
-    console.log('Comparing repositories now...');
+    console.log('INFO: Comparing users repositories now...');
     try {
         var ret=await compareRepo(realm,defaultSiteRole,defaultAuthSetting,idp_from_groups);
         console.log('-----------------------------------------------------------------------------------------------');
-        console.log("Exist in KC but not in Tableau",ret.toAdd)
+        console.log("Exist in IDP but not in Tableau",ret.toAdd)
         console.log('-----------------------------------------------------------------------------------------------');
-        console.log("Exist in Tableau but not in KC",ret.toDel)
+        console.log("Exist in Tableau but not in IDP",ret.toDel)
         console.log('-----------------------------------------------------------------------------------------------');
     } catch (error) {
         logit(`ERROR:`,error)
@@ -366,18 +366,18 @@ async function logit(mess,scnd=""){
         console.log(mess,scnd);
 }
 
-yargs(hideBin(process.argv)).command('compareuser', 'Compare KeyCloak and Tableau Users', (yargs) => {}, async (argv) => {
+yargs(hideBin(process.argv)).command('compareuser', 'Compare IDP and Tableau Users', (yargs) => {}, async (argv) => {
         if(!argv.realm || !argv.idp_from_groups)
-            console.log("Missing arguments...")
+            console.log("Missing arguments: idp_from_groups or realm")
         else{
             if(argv.NOCERT)
                 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             await goCompare(argv.realm,argv.defaultSiteRole,argv.defaultAuthSetting,argv.idp_from_groups);
         }
         process.exit(0);
-    }).command('comparegroup', 'Compare KeyCloak group allocaltion with Tableau group allocation', (yargs) => {}, async (argv) => {
+    }).command('comparegroup', 'Compare IDP group allocation with Tableau group allocation', (yargs) => {}, async (argv) => {
         if(!argv.realm || !argv.idp_from_groups)
-            console.log("Missing arguments...")
+            console.log("Missing arguments: idp_from_groups or realm")
         else{
             if(argv.NOCERT)
                 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
@@ -387,9 +387,9 @@ yargs(hideBin(process.argv)).command('compareuser', 'Compare KeyCloak and Tablea
                 logit("No change to perform, all good then !");
         }
         process.exit(0);
-    }).command('groupsync', 'Synchronize KeyCloak Group users allocation with Tableau Group users allocation', (yargs) => {}, async (argv) => {
+    }).command('groupsync', 'Synchronize IDP Group users allocation with Tableau Group users allocation', (yargs) => {}, async (argv) => {
         if(!argv.realm || !argv.idp_from_groups)
-            console.log("Missing arguments...")
+            console.log("Missing arguments: idp_from_groups or realm")
         else{
             if(argv.NOCERT)
                 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
@@ -398,7 +398,7 @@ yargs(hideBin(process.argv)).command('compareuser', 'Compare KeyCloak and Tablea
             await _groupsync(argv.realm,argv.FORCE,argv.idp_from_groups,argv.CREATE_GROUPS,argv.defaultSiteRole,argv.defaultAuthSetting,argv.IGNORE_DELETION);
             //process.exit(0);
         }  
-    }).command('*', 'KeyCloak->Tableau Sync Users Utility', (yargs) => {}, (argv) => {
+    }).command('*', 'IDP->Tableau Sync Users Utility', (yargs) => {}, (argv) => {
         console.log(help_splash);
         process.exit(0);
     }).argv;
