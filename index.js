@@ -120,6 +120,7 @@ async function prettyprintGroupCompare(resultCompare){
 
 async function _groupsync(realm,force,idp_from_groups,createGroups,defaultSiteRole,defaultAuthSetting,ignoredelete){
     var uu=await sync(realm,defaultSiteRole,defaultAuthSetting,force,ignoredelete,idp_from_groups);
+    //HERE USERS ARE PERHAPS NOT YET CREATED IN TOL....
     var resultingChanges=await groupsyncCompare(realm,idp_from_groups);  
     for (let i = 0; i < resultingChanges.tabgrouptoadd.length; i++) {
         const gradd = resultingChanges.tabgrouptoadd[i];
@@ -174,61 +175,63 @@ async function groupsync(resultCompare,createGroups){
 }
 
 async function groupsyncCompare(realm,idp_from_groups){
-    logit('INFO: 2 - Comparing Groups allocation...');
-    idp_from_groups=idp_from_groups.split(',');
-    var ret=await getUsersBothRepo(realm);
-    var tbu=ret.tbu;
-    var kcu=ret.kcu;
-    var resultingChanges={groups:[],tabtoadd:[],tabtoremove:[],tabgrouptoadd:[]}
-    for (let index = 0; index < idp_from_groups.length; index++) {
-        var tabUserToRemove=[];
-        var tabUserToAdd=[];
-        let agroup = idp_from_groups[index];
-        var gr=await getTableauGroupByName(agroup);
-        let idpgroupusers=getIdpUsersForGroup(kcu,agroup);
-        let tabgroupusers=getTableauUsersForGroup(tbu,agroup);
-        //group to add in tableau 
-        if(typeof(gr)=='undefined'){
-            resultingChanges.tabgrouptoadd.push(agroup)
-        }
-        //to add:
-        idpgroupusers.map((idpuser)=>{
-            var found=false;
-            tbu.map((tabu)=>{
-                if(tabu.name==idpuser.username){
-                    //check if already in the group ?
-                    var isAlready=false;
-                    tabu.groups.map((g)=>{
-                        if(g.name==agroup){
-                            isAlready=true;
-                        }
-                    })
-                    if(isAlready==false){
-                        tabUserToAdd.push(tabu);
-                    }
-                }
-            })
-            if(found==false){
-                //create the user and attach to group...
+    return new Promise(async (resolve,reject)=>{
+        logit('INFO: 2 - Comparing Groups allocation...');
+        idp_from_groups=idp_from_groups.split(',');
+        var ret=await getUsersBothRepo(realm);
+        var tbu=ret.tbu;
+        var kcu=ret.kcu;
+        var resultingChanges={groups:[],tabtoadd:[],tabtoremove:[],tabgrouptoadd:[]}
+        for (let index = 0; index < idp_from_groups.length; index++) {
+            var tabUserToRemove=[];
+            var tabUserToAdd=[];
+            let agroup = idp_from_groups[index];
+            var gr=await getTableauGroupByName(agroup);
+            let idpgroupusers=getIdpUsersForGroup(kcu,agroup);
+            let tabgroupusers=getTableauUsersForGroup(tbu,agroup);
+            //group to add in tableau 
+            if(typeof(gr)=='undefined'){
+                resultingChanges.tabgrouptoadd.push(agroup)
             }
-        });
-        //to del:
-        tabgroupusers.map((tuser)=>{
-            var found=false;
+            //to add:
             idpgroupusers.map((idpuser)=>{
-                if(tuser.name==idpuser.username){
-                    found=true;
+                var found=false;
+                tbu.map((tabu)=>{
+                    if(tabu.name==idpuser.username){
+                        //check if already in the group ?
+                        var isAlready=false;
+                        tabu.groups.map((g)=>{
+                            if(g.name==agroup){
+                                isAlready=true;
+                            }
+                        })
+                        if(isAlready==false){
+                            tabUserToAdd.push(tabu);
+                        }
+                    }
+                })
+                if(found==false){
+                    //create the user and attach to group...
+                }
+            });
+            //to del:
+            tabgroupusers.map((tuser)=>{
+                var found=false;
+                idpgroupusers.map((idpuser)=>{
+                    if(tuser.name==idpuser.username){
+                        found=true;
+                    }
+                })
+                if (found==false){
+                    tabUserToRemove.push(tuser);
                 }
             })
-            if (found==false){
-                tabUserToRemove.push(tuser);
-            }
-        })
-        resultingChanges.groups.push(agroup);
-        resultingChanges.tabtoadd.push(tabUserToAdd);
-        resultingChanges.tabtoremove.push(tabUserToRemove);
-    }
-    return resultingChanges;
+            resultingChanges.groups.push(agroup);
+            resultingChanges.tabtoadd.push(tabUserToAdd);
+            resultingChanges.tabtoremove.push(tabUserToRemove);
+        }
+        resolve(resultingChanges);
+    })
 }
 
 async function waitTillGroupExists(grpname){
@@ -327,7 +330,10 @@ async function doit(ret,tableau_to_group,ignoredelete){
             const element = ret.toDel[index];
             await unlicenseUser(element);
         }
-        resolve();
+        //TRY TO FIX WHEN ALLOCATING NEW USERS AND NOT YET FULLY CREATED IN TABLEAU
+        setTimeout(() => {
+            resolve();
+        }, 2000);
     })
 }
 
