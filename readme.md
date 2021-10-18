@@ -130,4 +130,4 @@ An extra command to update Tableau user licenses in designated group(s)
 
 Something like: 
 
-    node index.js updateLicence --reaml=myrealm --defaultSiteRole=ExplorerCanPublish
+    node index.js updateLicence --groups="tableau_explorer" --reaml=myrealm --defaultSiteRole=Explorer
