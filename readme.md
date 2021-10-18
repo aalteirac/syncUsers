@@ -46,8 +46,8 @@ Run the following command to only compare group user allocations (no modificatio
   - Choose the source IDP
         -- Value can be:
 
-				  KC      => for Keycloak
-          AUTH0   => for Auth0  
+				KC      => for Keycloak
+        AUTH0   => for Auth0  
 
 \-\-realm (Mandatory)
 - The IDP realm (or tenant) name to compare
