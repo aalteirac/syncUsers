@@ -20,10 +20,12 @@ Run the following command to only compare Users (no modification in any reposito
 
 \-\-IDP (Optional, default is "AUTH0")
   - Choose the source IDP
+	
+	--Values can be:
+			
+			KC      => for Keycloak
+			AUTH0   => for Auth0 
 
-	-- Value can be:
-      KC      => for Keycloak
-      AUTH0   => for Auth0 
 
 \-\-realm (Mandatory)
 - The IDP realm (or tenant) name to compare
