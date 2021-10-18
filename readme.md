@@ -46,10 +46,11 @@ Run the following command to only compare group user allocations (no modificatio
 
 \-\-IDP (Optional, default is "AUTH0")
   - Choose the source IDP
-  -- Value can be:
-
-				KC      => for Keycloak
-        AUTH0   => for Auth0  
+	
+	--Values can be:
+			
+			KC      => for Keycloak
+			AUTH0   => for Auth0  
 
 \-\-realm (Mandatory)
 - The IDP realm (or tenant) name to compare
@@ -78,10 +79,11 @@ Run the following command to synchronize Group(s) user allocation from IDP to Ta
 
 \-\-IDP (Optional, default is "AUTH0")
   - Choose the source IDP
-        -- Value can be:
-
-				  KC      => for Keycloak
-          AUTH0   => for Auth0 
+	
+	--Values can be:
+			
+			KC      => for Keycloak
+			AUTH0   => for Auth0 
 
 \-\-realm (Mandatory)
 - The IDP realm (or tenant) name to compare
