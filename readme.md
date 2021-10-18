@@ -23,7 +23,6 @@ Run the following command to only compare Users (no modification in any reposito
         -- Value can be:
 
 				  KC      => for Keycloak
-
           AUTH0   => for Auth0 
 
 \-\-realm (Mandatory)
@@ -48,7 +47,6 @@ Run the following command to only compare group user allocations (no modificatio
         -- Value can be:
 
 				  KC      => for Keycloak
-
           AUTH0   => for Auth0  
 
 \-\-realm (Mandatory)
@@ -81,7 +79,6 @@ Run the following command to synchronize Group(s) user allocation from IDP to Ta
         -- Value can be:
 
 				  KC      => for Keycloak
-
           AUTH0   => for Auth0 
 
 \-\-realm (Mandatory)
