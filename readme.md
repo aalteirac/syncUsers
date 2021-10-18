@@ -63,7 +63,7 @@ Run the following command to only compare group user allocations (no modificatio
 
 Run the following command to synchronize Group(s) user allocation from IDP to Tableau :
 
-    node index.js groupsync --realm=testsaml --idp_from_groups="tableau_creator,tableau_viewer"
+    node index.js groupsync --NOCERT --IDP=KC --IGNORE_DELETION --realm=testsaml --idp_from_groups="tableau_creator,tableau_viewer"
 
 \-\-FORCE (Optional, default is "false")
 - Disable confirmation, be sure of what you're doing :-)
