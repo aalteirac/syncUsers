@@ -18,11 +18,19 @@ Run the following command to only compare Users (no modification in any reposito
 \-\-NOCERT (Optional, default is "false")
  - Do not check ssl certificate validity
 
+\-\-IDP (Optional, default is "AUTH0")
+  - Choose the source IDP
+        -- Value can be:
+
+				  KC      => for Keycloak
+
+          AUTH0   => for Auth0 
+
 \-\-realm (Mandatory)
 - The IDP realm (or tenant) name to compare
 
 \-\-idp_from_groups (Mandatory)          
-- The group(s) to synchronize user allocation from the IDP (keycloak here) to Tableau
+- The group(s) to synchronize user allocation from the IDP to Tableau
         -- Value is enclosed in double quotes " and multiple groups are comma separated, ex: "group1,group2"
 
 --------------------------------------------COMPAREGROUP USAGE------------------------------------------
@@ -35,11 +43,19 @@ Run the following command to only compare group user allocations (no modificatio
 \-\-NOCERT (Optional, default is "false")
  - Do not check ssl certificate validity
 
-\-\-realm 
+\-\-IDP (Optional, default is "AUTH0")
+  - Choose the source IDP
+        -- Value can be:
+
+				  KC      => for Keycloak
+
+          AUTH0   => for Auth0  
+
+\-\-realm (Mandatory)
 - The IDP realm (or tenant) name to compare
 
 \-\-idp_from_groups (Mandatory)          
-- The group(s) to synchronize user allocation from the IDP (keycloak here) to Tableau
+- The group(s) to synchronize user allocation from the IDP to Tableau
         -- Value is enclosed in double quotes " and multiple groups are comma separated, ex: "group1,group2"
 
 ------------------------------------------GROUPSYNC USAGE------------------------------------------
@@ -60,11 +76,19 @@ Run the following command to synchronize Group(s) user allocation from IDP to Ta
 \-\-IGNORE_DELETION (Optional, default is "false")
 - Users in IDP but not in Tableau won't be unlicensed, just ignored... 
 
+\-\-IDP (Optional, default is "AUTH0")
+  - Choose the source IDP
+        -- Value can be:
+
+				  KC      => for Keycloak
+
+          AUTH0   => for Auth0 
+
 \-\-realm (Mandatory)
 - The IDP realm (or tenant) name to compare
 
 \-\-idp_from_groups (Mandatory)         
-- The group(s) to synchronize user allocation from the IDP (keycloak here) to Tableau
+- The group(s) to synchronize user allocation from the IDP to Tableau
         -- Value is enclosed in double quotes " and multiple groups are comma separated, ex: "group1,group2"
 
 \-\-defaultSiteRole (Optional, default is "Unlicensed")

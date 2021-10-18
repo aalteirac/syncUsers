@@ -1,10 +1,13 @@
 import { addUser,getUsersList,unLicenseTableauUser,addUserToGroup,getTableauGroupByName, removeUserToGroup, createTableauGroup } from "./lib/tableau.js";
 // import { getIDPUsersList } from "./lib/keycloak.js";
-import { getIDPUsersList } from "./lib/auth0.js";
+//import { getIDPUsersList } from "./lib/auth0.js";
 import { help_splash } from "./lib/help.js";
 import { createInterface } from "readline";
-import yargs from 'yargs'
-import { hideBin } from 'yargs/helpers'
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import auth0 from "./lib/auth0.js";
+import kcg from "./lib/keycloak.js";
+var getIDPUsersList=auth0;
 var log=true;
 
 const confirm=createInterface({
@@ -366,7 +369,23 @@ async function logit(mess,scnd=""){
         console.log(mess,scnd);
 }
 
+function checkIDPSyntax(idp){
+    if(typeof(idp)=='undefined')
+        console.log("WARN: IDP is not specified, default is AUTH0, for Keycloack add --IDP=KC")
+    else{
+        if(idp.toLowerCase()!="auth0" && idp.toLowerCase()!="kc" ){
+            console.log("ERROR: " +idp+" IDP not recognised...")
+        }
+        else{
+            if(idp.toLowerCase()=="kc")
+                getIDPUsersList=kcg;
+            console.log("INFO: " +idp.toUpperCase() +" IDP has been choosen...")
+        }
+    }    
+
+}
 yargs(hideBin(process.argv)).command('compareuser', 'Compare IDP and Tableau Users', (yargs) => {}, async (argv) => {
+        checkIDPSyntax(argv.IDP)
         if(!argv.realm || !argv.idp_from_groups)
             console.log("Missing arguments: idp_from_groups or realm")
         else{
@@ -376,6 +395,7 @@ yargs(hideBin(process.argv)).command('compareuser', 'Compare IDP and Tableau Use
         }
         process.exit(0);
     }).command('comparegroup', 'Compare IDP group allocation with Tableau group allocation', (yargs) => {}, async (argv) => {
+        checkIDPSyntax(argv.IDP)
         if(!argv.realm || !argv.idp_from_groups)
             console.log("Missing arguments: idp_from_groups or realm")
         else{
@@ -388,13 +408,14 @@ yargs(hideBin(process.argv)).command('compareuser', 'Compare IDP and Tableau Use
         }
         process.exit(0);
     }).command('groupsync', 'Synchronize IDP Group users allocation with Tableau Group users allocation', (yargs) => {}, async (argv) => {
+        checkIDPSyntax(argv.IDP)
         if(!argv.realm || !argv.idp_from_groups)
             console.log("Missing arguments: idp_from_groups or realm")
         else{
             if(argv.NOCERT)
                 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             if(argv.NOLOG)
-                log=false;      
+                log=false;     
             await _groupsync(argv.realm,argv.FORCE,argv.idp_from_groups,argv.CREATE_GROUPS,argv.defaultSiteRole,argv.defaultAuthSetting,argv.IGNORE_DELETION);
             //process.exit(0);
         }  
@@ -402,7 +423,3 @@ yargs(hideBin(process.argv)).command('compareuser', 'Compare IDP and Tableau Use
         console.log(help_splash);
         process.exit(0);
     }).argv;
-
-
-//node index.js groupsync --realm=qdoc --idp_from_groups="auth0_tableau_creator,auth0_tableau_viewer"
-//node index.js usersync --realm=qdoc --defaultSiteRole=Unlicensed  --defaultAuthSetting=ServerDefault --idp_from_groups="auth0_tableau_viewer,auth0_tableau_creators" 
