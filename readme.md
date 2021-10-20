@@ -135,7 +135,7 @@ Run the following command to synchronize Group(s) user allocation from IDP to Ta
 
 ------------------------------------------UPDATELIC USAGE------------------------------------------
 
-Run the following command to synchronize Group(s) user allocation from IDP to Tableau :
+Run the following command to update user license (and optionally authentication setting) Tableau :
 
   node index.js updatelic --tableau_groups="tableau_creator,tableau_viewer" --siteRole=Unlicensed --authSetting="OpenID"
 
