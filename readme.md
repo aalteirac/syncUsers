@@ -6,7 +6,7 @@ Clone/unzip the repo and run in the root folder: npm install
 
 if you need help to setup KeyCloak admin API: https://developers.redhat.com/blog/2020/01/29/api-login-and-jwt-token-generation-using-keycloak/
 
-If you need help to setup Auth0 managemant API: https://auth0.com/docs/get-started/create-apps/machine-to-machine-apps
+If you need help to setup Auth0 management API: https://auth0.com/docs/get-started/create-apps/machine-to-machine-apps
 
 ---------------FIRST FILL "store.js" INFORMATION TO CONNECT TABLEAU AND IDP---------------
 
