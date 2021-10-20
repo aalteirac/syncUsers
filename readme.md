@@ -141,6 +141,8 @@ Run the following command to update user license (and optionally authentication 
 
   node index.js updatelic --tableau_groups="tableau_creator,tableau_viewer" --siteRole=Unlicensed --authSetting="OpenID"
 
+Note: if a user belongs to multiple groups designated in \-\-tableau_groups, it will be updated multiple times, not optimal but not a problem. Will be fixed later on... 
+
 \-\-FORCE (Optional, default is "false")
 - Disable confirmation, be sure of what you're doing :-)
 
