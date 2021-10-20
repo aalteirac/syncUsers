@@ -82,6 +82,9 @@ Run the following command to synchronize Group(s) user allocation from IDP to Ta
 \-\-CREATE_GROUPS (Optional, default is "false")
 - if group doesn't exist in Tableau it will be automatically created
 
+\-\-CREATE_USERS (Optional, default is "false")
+- if user doesn't exist in Tableau it will be automatically created
+
 \-\-IDP (Optional, default is "AUTH0")
   - Choose the source IDP
 	
@@ -128,12 +131,53 @@ Run the following command to synchronize Group(s) user allocation from IDP to Ta
 			SAML
 			OpenID        => (Tableau Online only)
 
-# Coming Next
 
-A new parameter to CREATE_USER if it doesn't exist in Tableau, default will be false... Today no choice, the user is created...
 
-An extra command to update Tableau user licenses in designated group(s)
+------------------------------------------UPDATELIC USAGE------------------------------------------
 
-Something like: 
+Run the following command to synchronize Group(s) user allocation from IDP to Tableau :
 
-    node index.js updateLicence --tableau_groups="tableau_explorer" --defaultSiteRole=Explorer
+  node index.js updatelic --tableau_groups="tableau_creator,tableau_viewer" --siteRole=Unlicensed --authSetting="OpenID"
+
+\-\-FORCE (Optional, default is "false")
+- Disable confirmation, be sure of what you're doing :-)
+
+\-\-NOLOG (Optional, default is "false")
+- Disable log message
+
+\-\-NOCERT (Optional, default is "false")
+ - Do not check ssl certificate validity
+
+\-\-tableau_groups (Mandatory)         
+- The group(s) where users licenses will be updated
+
+\-\-siteRole (Mandatory)
+  - Default Site Role assigned to new users created in Tableau
+  
+    -- Values can be:
+
+				Viewer
+
+				Creator
+
+				Explorer
+
+				ExplorerCanPublish
+
+				SiteAdministratorExplorer
+
+				SiteAdministratorCreator
+
+				Unlicensed => default value
+
+  
+
+\-\-authSetting (Optional, default is "ServerDefault")
+ - Default Authentication Setting assigned to new users created in Tableau
+	
+	--Values can be:
+			
+			ServerDefault => default value
+			SAML
+			OpenID        => (Tableau Online only)	
+

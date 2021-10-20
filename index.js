@@ -1,4 +1,4 @@
-import { addUser,getUsersList,unLicenseTableauUser,addUserToGroup,getTableauGroupByName, removeUserToGroup, createTableauGroup } from "./lib/tableau.js";
+import { addUser,getUsersList,unLicenseTableauUser,addUserToGroup,getTableauGroupByName, removeUserToGroup, createTableauGroup,updateTableauUser } from "./lib/tableau.js";
 // import { getIDPUsersList } from "./lib/keycloak.js";
 //import { getIDPUsersList } from "./lib/auth0.js";
 import { help_splash } from "./lib/help.js";
@@ -118,8 +118,12 @@ async function prettyprintGroupCompare(resultCompare){
     return something
 }
 
-async function _groupsync(realm,force,idp_from_groups,createGroups,defaultSiteRole,defaultAuthSetting,ignoredelete){
-    var uu=await sync(realm,defaultSiteRole,defaultAuthSetting,force,ignoredelete,idp_from_groups);
+async function _groupsync(realm,force,idp_from_groups,createGroups,defaultSiteRole,defaultAuthSetting,ignoredelete,createUsers){
+    if(createUsers)
+        var uu=await sync(realm,defaultSiteRole,defaultAuthSetting,force,ignoredelete,idp_from_groups);
+    else{
+        logit(`INFO: Automatic user creation is disabled, if you want to activate use: "--CREATE_USERS"`)
+    }
     //HERE USERS ARE PERHAPS NOT YET CREATED IN TOL....
     var resultingChanges=await groupsyncCompare(realm,idp_from_groups);  
     for (let i = 0; i < resultingChanges.tabgrouptoadd.length; i++) {
@@ -130,7 +134,12 @@ async function _groupsync(realm,force,idp_from_groups,createGroups,defaultSiteRo
             logit(`WARN: "${gradd}" doesn't exist in Tableau, allocation to this group won't be performed!\n      Create "${gradd}" manually in Tableau or use "--CREATE_GROUPS" for the tool to create it for you.`);
     }
     if(force){
-        await groupsync(resultingChanges,createGroups);
+        var hasChanges=await prettyprintGroupCompare(resultingChanges)
+        if(hasChanges==true)
+            await groupsync(resultingChanges,createGroups);
+        else{
+            logit("INFO: No change to perform for groups, all good then !");
+            }
         process.exit(0); 
     }
     else{
@@ -147,7 +156,7 @@ async function _groupsync(realm,force,idp_from_groups,createGroups,defaultSiteRo
                 process.exit(0);     
             })
         else{
-            logit("No change to perform for groups, all good then !");
+            logit("INFO: No change to perform for groups, all good then !");
             process.exit(0);     
         }
              
@@ -318,6 +327,7 @@ async function doit(ret,tableau_to_group,ignoredelete){
         for (let id = 0; id < ret.toAdd.length; id++) {
             const el = ret.toAdd[id];
             try {
+                //TEST IF TOL AND USER NAME IS NOT EMAIL
                 await addUser(el);
                 logit(`INFO: ${el.name} successfully imported`);
             } catch (error) {
@@ -375,6 +385,38 @@ async function logit(mess,scnd=""){
         console.log(mess,scnd);
 }
 
+async function _updateLic(FORCE,tableau_groups,defaultSiteRole,defaultAuthSetting="ServerDefault"){
+    logit(`INFO: Getting users from ${tableau_groups}...`);
+    var tbu=await getUsersList();
+    var allToUp=[];
+    tableau_groups=tableau_groups.split(',');
+    for (let index = 0; index < tableau_groups.length; index++) {
+        let agroup = tableau_groups[index];
+        var toup=getTableauUsersForGroup(tbu,agroup);
+        allToUp=allToUp.concat(toup);
+    }
+    logit(`INFO: ${allToUp.length} users will be updated`);
+    if(typeof(FORCE)=='undefined'){
+        confirm.question(`Are you sure to update ${allToUp.length} users in "${tableau_groups}" ?`, async (e)=>{
+            if(e.toLowerCase()=="y"){
+                for (let i = 0; i < allToUp.length; i++) {
+                    const up = allToUp[i];
+                    await updateTableauUser(up,defaultSiteRole,defaultAuthSetting);
+                    logit(`INFO: ${up.name} has been succesfully updated!`);
+                }
+            }
+            confirm.close();
+        })
+    }
+    else{
+        for (let i = 0; i < allToUp.length; i++) {
+            const up = allToUp[i];
+            var ret =await updateTableauUser(up,defaultSiteRole,defaultAuthSetting);
+            logit(`INFO: ${up.name} has been succesfully updated!`);
+        }
+        process.exit(0);
+    }
+}
 function checkIDPSyntax(idp){
     if(typeof(idp)=='undefined')
         console.log("WARN: IDP is not specified, default is AUTH0, for Keycloack add --IDP=KC")
@@ -410,7 +452,7 @@ yargs(hideBin(process.argv)).command('compareuser', 'Compare IDP and Tableau Use
             var resultingChanges=await groupsyncCompare(argv.realm,argv.idp_from_groups); 
             var hasChanges=await prettyprintGroupCompare(resultingChanges)
             if(hasChanges==false)
-                logit("No change to perform, all good then !");
+                logit("INFO: No change to perform, all good then !");
         }
         process.exit(0);
     }).command('groupsync', 'Synchronize IDP Group users allocation with Tableau Group users allocation', (yargs) => {}, async (argv) => {
@@ -422,8 +464,18 @@ yargs(hideBin(process.argv)).command('compareuser', 'Compare IDP and Tableau Use
                 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             if(argv.NOLOG)
                 log=false;     
-            await _groupsync(argv.realm,argv.FORCE,argv.idp_from_groups,argv.CREATE_GROUPS,argv.defaultSiteRole,argv.defaultAuthSetting,argv.IGNORE_DELETION);
+            await _groupsync(argv.realm,argv.FORCE,argv.idp_from_groups,argv.CREATE_GROUPS,argv.defaultSiteRole,argv.defaultAuthSetting,argv.IGNORE_DELETION,argv.CREATE_USERS);
             //process.exit(0);
+        }  
+    }).command('updatelic', 'Update User Licenses in designated group(s)', (yargs) => {}, async (argv) => {
+        if(!argv.tableau_groups ||  !argv.siteRole)
+            console.log("Missing arguments: tableau_groups, realm, siteRole or authSetting")
+        else{
+            if(argv.NOCERT)
+                process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+            if(argv.NOLOG)
+                log=false;     
+            await _updateLic(argv.FORCE,argv.tableau_groups,argv.siteRole,argv.authSetting);
         }  
     }).command('*', 'IDP->Tableau Sync Users Utility', (yargs) => {}, (argv) => {
         console.log(help_splash);
